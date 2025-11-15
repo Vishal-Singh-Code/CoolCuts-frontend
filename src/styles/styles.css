@@ -1,0 +1,72 @@
+body {
+  font-family: 'Open Sans', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+
+
+/* Custom styles for checkbox */
+.custom-checkbox input[type="checkbox"] {
+  accent-color: #008080; /* Teal color */
+}
+
+/* Default aspect ratio for mobile (16:9) */
+.carousel-item img {
+  aspect-ratio: 16/9;
+}
+
+/* Aspect ratio for desktop (9:4) */
+@media (min-width: 1024px) {
+  .carousel-item img {
+    margin-top: 12px;
+    aspect-ratio: 24/4;
+  }
+}
+
+::selection {
+  background: #00ACC1; /* Teal color */
+  color: rgb(0, 0, 0);
+}
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
