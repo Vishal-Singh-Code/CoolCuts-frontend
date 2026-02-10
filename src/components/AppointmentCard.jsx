@@ -67,7 +67,7 @@ const AppointmentCard = ({
             <p className="font-semibold">
                 Time :{" "}
                 <span className="text-gray-700">
-                    {formatTime(appointment.appointment_time)}
+                    {appointment.appointment_time}
                 </span>
             </p>
 
