@@ -1,14 +1,15 @@
-import { useEffect, useState, useContext, useCallback } from "react";
-import api from "../services/api";
-import { AuthContext } from "../context/AuthContext";
-import Filters from "../components/Filters";
-import AppointmentCard from "../components/AppointmentCard";
+import { useEffect, useState, useCallback } from "react";
+import api from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
+import Filters from "../../components/Filters";
+import AppointmentCard from "../../components/AppointmentCard";
 
-const AppointmentList = () => {
+const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filter, setFilter] = useState({ search: "", sort: "", status: "" });
-  const { user } = useContext(AuthContext);
+  const [actionError, setActionError] = useState("");
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -71,24 +72,29 @@ const AppointmentList = () => {
     setFilter({ search: "", sort: "", status: "" });
   };
 
-  const toggleChecklistItemStatus = async (appointmentId, itemIndex) => {
+  const toggleChecklistItemStatus = async (itemId) => {
     try {
-      const appointment = appointments.find(app => app.id === appointmentId);
-      if (!appointment) return;
-
-      const updatedChecklist = appointment.checklist.map((item, index) =>
-        index === itemIndex ? { ...item, done: !item.done } : item
-      );
-
-      const response = await api.patch(`/api/appointments/${appointmentId}/`, {
-        checklist: updatedChecklist,
-      });
+      setActionError("");
+      const response = await api.patch(`/api/checklist-items/${itemId}/toggle/`);
+      const updatedDone = response.data?.done;
 
       setAppointments(prev =>
-        prev.map(app => app.id === appointmentId ? response.data : app)
+        prev.map(app => ({
+          ...app,
+          checklist: (app.checklist || []).map(item =>
+            item.id === itemId
+              ? { ...item, done: typeof updatedDone === "boolean" ? updatedDone : !item.done }
+              : item
+          ),
+        }))
       );
     } catch (error) {
-      console.log(error.response?.data);
+      const message =
+        error.response?.status === 403
+          ? "Checklist updates are allowed for admin staff only."
+          : "Checklist update failed. Please try again.";
+      setActionError(message);
+      console.log(error.response?.data || error.message);
     }
   };
 
@@ -99,7 +105,6 @@ const AppointmentList = () => {
 
       const response = await api.patch(`/api/appointments/${appointmentId}/`, {
         status: appointment.status === "pending" ? "done" : "pending",
-        appointment_time: appointment.appointment_time // required by backend
       });
 
       setAppointments(prev =>
@@ -110,8 +115,6 @@ const AppointmentList = () => {
     }
   };
 
-
-
   if (!user) {
     return (
       <p className="text-center mt-4">Please log in to view appointments.</p>
@@ -119,13 +122,19 @@ const AppointmentList = () => {
   }
 
   return (
-    <div className="container mx-auto mt-8 px-4">
+    <div className="container mx-auto pt-8 px-4">
       <div className="mb-8 text-center">
         <h2 className="sm:text-3xl text-2xl font-bold mb-2">Appointments</h2>
         <p className="text-gray-600 text-sm sm:text-base max-w-xl mx-auto">
           View, edit, and manage all scheduled appointments.
         </p>
       </div>
+
+      {actionError && (
+        <p className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">
+          {actionError}
+        </p>
+      )}
 
       <Filters
         filter={filter}
@@ -147,4 +156,4 @@ const AppointmentList = () => {
   );
 };
 
-export default AppointmentList;
+export default Appointments;

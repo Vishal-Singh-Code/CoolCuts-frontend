@@ -1,40 +1,36 @@
-import axios from "axios";
-import api from "./api"
+import api from "./api";
 
-const API_URL = import.meta.env.VITE_API_URL;
-export {API_URL} ;
+/* =======================
+   SERVICES API
+======================= */
 
-const register = (username, email, password, first_name, last_name) =>
-  axios.post(`${API_URL}/user/register/`, { username, email, password, first_name, last_name });
-
-const login = async (username, password) => {
-  const response = await axios.post(`${API_URL}/user/login/`, {
-    username,
-    password,
-  });
-
-  localStorage.setItem("access_token", response.data.access);
-  localStorage.setItem("refresh_token", response.data.refresh);
-
+// GET all services
+const getServices = async () => {
+  const response = await api.get("/api/services/");
   return response.data;
 };
 
-const logout = () => {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+// CREATE a service
+const createService = async (data) => {
+  const response = await api.post("/api/services/", data);
+  return response.data;
 };
 
-// --- Services API ---
-const getServices = () => api.get(`${API_URL}/api/services/`);
-const createService = (data) => api.post(`${API_URL}/api/services/`, data);
-const updateService = (id, data) => api.put(`${API_URL}/api/services/${id}/`, data);
-const deleteService = (id) => api.delete(`${API_URL}/api/services/${id}/`);
+// UPDATE a service
+const updateService = async (id, data) => {
+  const response = await api.put(`/api/services/${id}/`, data);
+  return response.data;
+};
 
-export default {  register,
-  login,
-  logout,
+// DELETE a service
+const deleteService = async (id) => {
+  const response = await api.delete(`/api/services/${id}/`);
+  return response.data;
+};
+
+export default {
   getServices,
   createService,
   updateService,
-  deleteService
+  deleteService,
 };

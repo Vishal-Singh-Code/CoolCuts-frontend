@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { Logo } from '../components/Icons.jsx';
 import { Link } from "react-router-dom";
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ const ContactUs = () => {
       const response = await axios.post(`${API_URL}/api/contact/`, formData);
       setStatus({ type: 'success', message: response.data.message });
       setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
+    } catch {
       setStatus({ type: 'error', message: 'An error occurred. Please try again later.' });
     }
   };

@@ -5,67 +5,65 @@ const AppointmentCard = ({
     toggleAppointmentStatus,
     toggleChecklistItemStatus,
 }) => {
+    const isDone = appointment.status?.toLowerCase() === "done";
 
-    const formatTime = (timeString) => {
-        const time = new Date(`1970-01-01T${timeString}`);
-        return time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    };
-
-    // Capitalize the first letter of each word in the name
-    const capitalizeName = (name) => {
-        return name
+    const capitalizeName = (name = "") =>
+        name
+            .trim()
             .split(" ")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .filter(Boolean)
+            .map(
+                (word) =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            )
             .join(" ");
-    };
 
-    // Format the appointment date
-    const formatDate = (dateStr) => {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString("en-UK", {
+    const formatDate = (dateStr) =>
+        new Date(dateStr).toLocaleDateString("en-GB", {
             year: "numeric",
             month: "long",
             day: "numeric",
         });
-    };
 
     return (
         <li className="text-md sm:text-lg bg-gray-100 border border-gray-300 mb-4 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow relative">
-
-            {/* Button Container */}
+            {/* Status Button */}
             <div className="absolute top-2 right-2">
                 <button
-                    className={`p-2 border border-gray-300 rounded-md ${appointment.status === "done"
-                        ? "bg-green-300 hover:bg-green-400"
-                        : "bg-yellow-300 hover:bg-yellow-400"
+                    className={`p-2 border border-gray-300 rounded-md ${isDone
+                            ? "bg-green-300 hover:bg-green-400"
+                            : "bg-yellow-300 hover:bg-yellow-400"
                         }`}
                     onClick={() => toggleAppointmentStatus(appointment.id)}
                 >
-                    {appointment.status === "done" ? "Done" : "Pending"}
+                    {isDone ? "Done" : "Pending"}
                 </button>
             </div>
 
             {/* Appointment Details */}
             <p className="font-semibold">
-                Customer :{" "}
+                Customer:{" "}
                 <span className="text-gray-700">
                     {capitalizeName(appointment.customer_name)}
                 </span>
             </p>
+
             <p className="font-semibold">
-                Phone :{" "}
+                Phone:{" "}
                 <span className="text-gray-700">
                     {appointment.phone}
                 </span>
             </p>
+
             <p className="font-semibold">
-                Date :{" "}
+                Date:{" "}
                 <span className="text-gray-700">
                     {formatDate(appointment.appointment_date)}
                 </span>
             </p>
+
             <p className="font-semibold">
-                Time :{" "}
+                Time:{" "}
                 <span className="text-gray-700">
                     {appointment.appointment_time}
                 </span>

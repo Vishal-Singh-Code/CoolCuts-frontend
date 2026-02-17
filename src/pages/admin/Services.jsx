@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import apiService from "../services/apiService";
+import apiService from "../../services/apiService";
 
 const { getServices, createService, updateService, deleteService } = apiService;
 
-const AdminPanel = () => {
+const Services = () => {
   const [services, setServices] = useState([]);
   const [newService, setNewService] = useState({ name: "", price: "" });
   const [editingService, setEditingService] = useState(null);
@@ -12,7 +12,7 @@ const AdminPanel = () => {
     const fetchServices = async () => {
       try {
         const response = await getServices();
-        setServices(response.data);
+        setServices(response);
       } catch (error) {
         console.error("Error fetching services", error);
       }
@@ -23,7 +23,7 @@ const AdminPanel = () => {
   const handleCreateService = () => {
     createService(newService)
       .then((response) => {
-        setServices([...services, response.data]);
+        setServices([...services, response]);
         setNewService({ name: "", price: "" });
       })
       .catch((error) => console.error("Create failed", error));
@@ -34,7 +34,7 @@ const AdminPanel = () => {
       .then((response) => {
         setServices(
           services.map((service) =>
-            service.id === editingService.id ? response.data : service
+            service.id === editingService.id ? response : service
           )
         );
         setEditingService(null);
@@ -51,7 +51,7 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="container mx-auto max-w-6xl mt-8 px-4">
+    <div className="container mx-auto max-w-6xl pt-8 px-4">
 
       <div className="mb-8 text-center">
         <h2 className="sm:text-3xl text-2xl font-bold mb-2">Manage Services</h2>
@@ -161,4 +161,4 @@ Keep service listings up to date. Create new services, modify pricing, or delete
   );
 };
 
-export default AdminPanel;
+export default Services;

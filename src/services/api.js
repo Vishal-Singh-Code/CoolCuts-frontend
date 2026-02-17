@@ -1,66 +1,63 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// ---- Attach access token automatically ----
+// ====================
+// REQUEST INTERCEPTOR
+// ====================
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("access");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-
-const logout = () => {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-  window.location.href = "/login";
-};
-
-
-// ---- Refresh token if expired ----
+// ====================
+// RESPONSE INTERCEPTOR
+// ====================
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // If access token expired
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
-      const refresh = localStorage.getItem('refresh_token');
-
-      if (!refresh) {
-        logout(); 
-        return Promise.reject(error);
-      }
-
       try {
-        const res = await axios.post(`${API_URL}/user/refresh/`, { refresh });
+        const refresh = localStorage.getItem("refresh");
 
-        localStorage.setItem("access_token", res.data.access);
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/auth/refresh/`,
+          { refresh }
+        );
 
-        if (res.data.refresh) {
-          localStorage.setItem("refresh_token", res.data.refresh);
-        }
+        // Save new access token
+        localStorage.setItem("access", res.data.access);
 
-        api.defaults.headers.Authorization = `Bearer ${res.data.access}`;
-        originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
+        // Update header & retry request
+        originalRequest.headers.Authorization =
+          `Bearer ${res.data.access}`;
 
         return api(originalRequest);
-
       } catch {
-        logout();
+        // Refresh token invalid → logout
+        localStorage.clear();
+        window.location.href = "/login";
       }
     }
 
     return Promise.reject(error);
   }
 );
-
 
 export default api;

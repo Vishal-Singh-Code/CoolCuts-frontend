@@ -1,33 +1,36 @@
 import "./App.css";
-import "./styles/styles.css"
-import "./styles/LoadingScreen.css"
+import "./styles/styles.css";
+import "./styles/LoadingScreen.css";
 
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 // components
 import LoadingScreen from "./components/LoadingScreen";
-import Navbar from "./components/Navbar";
-import MaybeShowNavbar from "./components/MaybeShowNavbar";
 import Logout from "./components/Logout";
+import UserLayout from "./components/layout/UserLayout";
+import AdminLayout from "./components/layout/AdminLayout";
+import AdminRoute from "./components/protected/PrivateRoutes";
+
 
 // pages
-import Home from "./pages/Home";
-import Service from "./pages/Services";
-import BookAppointment from "./pages/BookAppointment";
-import History from "./pages/History";
-import AppointmentList from "./pages/AppointmentList";
-import ContactUs from "./pages/ContactUs";
-import AboutUs from "./pages/AboutUs";
-import AdminPanel from "./pages/AdminPanel";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
-import { AuthProvider } from "./context/AuthContext";
+import Home from "./pages/user/Home";
+import UserServices from "./pages/user/Services";
+import BookAppointment from "./pages/user/BookAppointment";
+import AppointmentHistory from "./pages/user/AppointmentHistory";
+import Profile from "./pages/user/Profile";
+
+import Dashboard from "./pages/admin/Dashboard";
+import Appointments from "./pages/admin/Appointments";
+import AdminServices from "./pages/admin/Services";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     const handleLoad = () => setIsLoading(false);
 
@@ -36,40 +39,44 @@ const App = () => {
     } else {
       window.addEventListener("load", handleLoad);
     }
-    return () => {
-      window.removeEventListener("load", handleLoad);
-    };
+
+    return () => window.removeEventListener("load", handleLoad);
   }, []);
 
   return (
     <div>
       {isLoading && <LoadingScreen />}
-      <AuthProvider>
-        <Router>
-          <MaybeShowNavbar>
-            <Navbar />
-          </MaybeShowNavbar>
-          <div
-            className={`transition-opacity duration-500 ${
-              isLoading ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/services" element={<Service />} />
-              <Route path="/book-appointment" element={<BookAppointment />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/appointment-list" element={<AppointmentList />} />
-              <Route path="/about-us" element={<AboutUs />} />
-              <Route path="/contact-us" element={<ContactUs />} />
-              <Route path="/admin-panel" element={<AdminPanel />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/logout" element={<Logout />} />
-            </Routes>
-          </div>
-        </Router>
-      </AuthProvider>
+
+      <div
+        className={`transition-opacity duration-500 ${isLoading ? "opacity-0" : "opacity-100"
+          }`}
+      >
+        <Routes>
+          {/* PUBLIC / USER */}
+          <Route element={<UserLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<UserServices />} />
+            <Route path="/book-appointment" element={<BookAppointment />} />
+            <Route path="/history" element={<AppointmentHistory />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+
+          {/* ADMIN */}
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="appointments" element={<Appointments />} />
+              <Route path="services" element={<AdminServices />} />
+            </Route>
+          </Route>
+
+          {/* AUTH */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/logout" element={<Logout />} />
+        </Routes>
+      </div>
     </div>
   );
 };

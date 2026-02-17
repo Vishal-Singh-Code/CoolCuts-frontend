@@ -1,59 +1,158 @@
-import { createContext, useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
+import authService from "../services/authServices";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const storedRole = localStorage.getItem("user_role");
+    const restoreUser = async () => {
+      const access = localStorage.getItem("access");
 
-    if (token) {
-      try {
-        const decodedUser = jwtDecode(token);
-
-        // restore role if available
-        const updatedUser = storedRole
-          ? { ...decodedUser, role: storedRole }
-          : decodedUser;
-
-        setUser(updatedUser);
-      } catch (error) {
-        setUser(null);
+      if (!access) {
+        setInitialLoading(false);
+        return;
       }
-    }
+
+      try {
+        const res = await api.get("/auth/me/");
+        setUser(res.data);
+      } catch (err) {
+        console.error("Auth restore failed:", err);
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+        setUser(null);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    restoreUser();
   }, []);
 
-  const login = (tokens) => {
-    if (!tokens?.access) {
-      console.error("Invalid login payload:", tokens);
-      return;
+  const setSession = (payload) => {
+    localStorage.setItem("access", payload.access);
+    localStorage.setItem("refresh", payload.refresh);
+  };
+
+  const restoreMe = async () => {
+    const me = await api.get("/auth/me/");
+    setUser(me.data);
+    return me;
+  };
+
+
+  const sendOtp = async (email) => {
+    setOtpLoading(true);
+    try {
+      return await authService.sendOtp(email);
+    } finally {
+      setOtpLoading(false);
     }
-
-    localStorage.setItem("access_token", tokens.access);
-    localStorage.setItem("refresh_token", tokens.refresh);
-    localStorage.setItem("user_role", tokens.role); 
-
-    const decodedUser = jwtDecode(tokens.access);
-    const updatedUser = { ...decodedUser, role: tokens.role };
-
-    setUser(updatedUser);
   };
 
-  const logout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_role"); 
-    setUser(null);
+
+  const verifyOtpAndRegister = async (email, otp, password) => {
+    setAuthLoading(true);
+    try {
+      const res = await authService.verifyOtpAndRegister(email, otp, password);
+      setSession(res.data);
+      await restoreMe();
+      return res;
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
+  const login = async (identifier, password) => {
+    setAuthLoading(true);
+    try {
+      const res = await authService.login(identifier, password);
+      setSession(res.data);
+      await restoreMe();
+      return res;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const googleLogin = async (idToken) => {
+    setAuthLoading(true);
+    try {
+      const res = await authService.googleLogin(idToken);
+      setSession(res.data);
+      await restoreMe();
+      return res;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const requestForgotPasswordOtp = async (email) => {
+    setOtpLoading(true);
+    try {
+      return await authService.requestForgotPasswordOtp(email);
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const resetForgotPassword = async (email, otp, password) => {
+    setAuthLoading(true);
+    try {
+      return await authService.resetForgotPassword(email, otp, password);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    const refresh = localStorage.getItem("refresh");
+
+    try {
+      if (refresh) {
+        await api.post("/auth/logout/", { refresh });
+      }
+    } catch (err) {
+      console.error("Logout API failed:", err);
+    } finally {
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+      setUser(null);
+      navigate("/login");
+    }
+  };
+
+ 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider
+      value={{
+        user,
+        loading: initialLoading || authLoading,
+        authLoading,
+        otpLoading,
+        sendOtp,
+        verifyOtpAndRegister,
+        login,
+        googleLogin,
+        requestForgotPasswordOtp,
+        resetForgotPassword,
+        logout,
+      }}
+    >
+      {!initialLoading && children}
     </AuthContext.Provider>
   );
 };
 
-export { AuthContext, AuthProvider };
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => useContext(AuthContext);

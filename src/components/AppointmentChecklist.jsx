@@ -1,30 +1,44 @@
-const AppointmentChecklist = ({ appointment, toggleChecklistItemStatus }) => {
+const AppointmentChecklist = ({
+  appointment,
+  toggleChecklistItemStatus,
+}) => {
   if (
     !appointment?.checklist ||
     !Array.isArray(appointment.checklist) ||
     appointment.checklist.length === 0
   ) {
-    return <p className="text-gray-700 mt-2">No checklist items</p>;
+    return (
+      <p className="italic text-gray-500 mt-2">
+        No checklist items assigned
+      </p>
+    );
   }
+
+  const isCompleted = appointment.status === "done";
 
   return (
     <div className="mt-2">
       <p className="font-semibold">Checklist:</p>
-      <ul className="list-none grid grid-cols-2 gap mt-2">
-        {appointment.checklist.map((item, index) => (
-          <li key={index} className="flex items-center py-1">
+
+      <ul className="grid grid-cols-2 gap-2 mt-2">
+        {appointment.checklist.map((item) => (
+          <li key={item.id} className="flex items-center py-1">
             <input
               type="checkbox"
-              checked={item?.done ?? false} 
-              onChange={() => toggleChecklistItemStatus(appointment.id, index)}
+              disabled={isCompleted}
+              checked={item.done}
+              onChange={() => toggleChecklistItemStatus(item.id)}
               className="mr-2"
             />
+
             <span
               className={
-                item?.done ? "line-through text-gray-500" : "text-gray-700"
+                item.done
+                  ? "line-through text-gray-500"
+                  : "text-gray-700"
               }
             >
-              {item?.text?.name ?? "Unnamed"} 
+              {item.name}
             </span>
           </li>
         ))}

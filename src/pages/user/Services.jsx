@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Logo } from '../components/Icons';
-import '../styles/styles.css';
+import api from '../../services/api'
+import { Logo } from '../../components/Icons';
+import '../../styles/styles.css';
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-const Service = () => {
+const Services = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -14,7 +12,7 @@ const Service = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/services/`);
+        const response = await api.get(`/api/services/`);
         setServices(response.data);
         setLoading(false);
       } catch (error) {
@@ -169,4 +167,4 @@ const Service = () => {
   );
 };
 
-export default Service;
+export default Services;
