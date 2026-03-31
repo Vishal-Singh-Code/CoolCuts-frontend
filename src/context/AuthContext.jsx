@@ -147,6 +147,7 @@ export const AuthProvider = ({ children }) => {
         requestForgotPasswordOtp,
         resetForgotPassword,
         logout,
+        refreshUser: restoreMe,
       }}
     >
       {!initialLoading && children}

@@ -40,14 +40,12 @@ const BookAppointment = () => {
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  /* -------------------- Fetch services -------------------- */
   useEffect(() => {
     api.get("/api/services/")
-      .then(res => setServices(res.data))
+      .then((res) => setServices(res.data))
       .catch(() => {});
   }, []);
 
-  /* -------------------- Fetch slots -------------------- */
   useEffect(() => {
     if (!appointmentData.appointment_date) return;
 
@@ -55,14 +53,13 @@ const BookAppointment = () => {
     api.get(
       `/api/appointments/available-slots/?date=${appointmentData.appointment_date}`
     )
-      .then(res => setAvailableSlots(res.data))
+      .then((res) => setAvailableSlots(res.data))
       .catch(() => setAvailableSlots([]))
       .finally(() => setLoadingSlots(false));
   }, [appointmentData.appointment_date]);
 
-  /* -------------------- Services logic -------------------- */
   const addService = (id) => {
-    setAppointmentData(prev => ({
+    setAppointmentData((prev) => ({
       ...prev,
       services: prev.services.includes(id)
         ? prev.services
@@ -71,15 +68,15 @@ const BookAppointment = () => {
   };
 
   const removeService = (id) => {
-    setAppointmentData(prev => ({
+    setAppointmentData((prev) => ({
       ...prev,
-      services: prev.services.filter(s => s !== id),
+      services: prev.services.filter((s) => s !== id),
     }));
   };
 
   const selectedServices = useMemo(() => {
     const set = new Set(appointmentData.services);
-    return services.filter(s => set.has(s.id));
+    return services.filter((s) => set.has(s.id));
   }, [appointmentData.services, services]);
 
   const searchableServices = useMemo(() => {
@@ -87,8 +84,8 @@ const BookAppointment = () => {
     const q = serviceSearch.toLowerCase().trim();
 
     return services
-      .filter(s => !set.has(s.id))
-      .filter(s => s.name.toLowerCase().includes(q));
+      .filter((s) => !set.has(s.id))
+      .filter((s) => s.name.toLowerCase().includes(q));
   }, [appointmentData.services, serviceSearch, services]);
 
   const totalPrice = useMemo(
@@ -96,7 +93,6 @@ const BookAppointment = () => {
     [selectedServices]
   );
 
-  /* -------------------- Submit -------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
@@ -122,7 +118,6 @@ const BookAppointment = () => {
 
   const minDate = new Date().toISOString().split("T")[0];
 
-  /* ======================== UI ======================== */
   return (
     <>
       <BookingModal
@@ -140,8 +135,6 @@ const BookAppointment = () => {
             onSubmit={handleSubmit}
             className="surface-card p-5 sm:p-8 space-y-6 rounded-2xl"
           >
-
-            {/* Header */}
             <div>
               <h2 className="text-2xl sm:text-3xl font-semibold">
                 Book Appointment
@@ -157,7 +150,6 @@ const BookAppointment = () => {
               </p>
             )}
 
-            {/* Step 1 */}
             <section className="space-y-3">
               <h3 className="font-semibold">1. Date & Time</h3>
 
@@ -166,7 +158,7 @@ const BookAppointment = () => {
                   type="date"
                   min={minDate}
                   value={appointmentData.appointment_date}
-                  onChange={e =>
+                  onChange={(e) =>
                     setAppointmentData({
                       ...appointmentData,
                       appointment_date: e.target.value,
@@ -177,8 +169,8 @@ const BookAppointment = () => {
 
                 <select
                   value={appointmentData.appointment_time}
-                  onChange={e =>
-                    setAppointmentData(prev => ({
+                  onChange={(e) =>
+                    setAppointmentData((prev) => ({
                       ...prev,
                       appointment_time: e.target.value,
                     }))
@@ -189,7 +181,7 @@ const BookAppointment = () => {
                   <option value="">
                     {loadingSlots ? "Loading slots..." : "Select time"}
                   </option>
-                  {availableSlots.map(slot => (
+                  {availableSlots.map((slot) => (
                     <option key={slot} value={slot}>
                       {slot}
                     </option>
@@ -204,7 +196,6 @@ const BookAppointment = () => {
               )}
             </section>
 
-            {/* Step 2 */}
             <section className="space-y-3">
               <h3 className="font-semibold">2. Services</h3>
 
@@ -212,20 +203,20 @@ const BookAppointment = () => {
                 type="text"
                 placeholder="Search services..."
                 value={serviceSearch}
-                onChange={e => setServiceSearch(e.target.value)}
+                onChange={(e) => setServiceSearch(e.target.value)}
                 className="input"
               />
 
               {selectedServices.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {selectedServices.map(s => (
+                  {selectedServices.map((s) => (
                     <button
                       key={s.id}
                       type="button"
                       onClick={() => removeService(s.id)}
                       className="px-3 py-1.5 rounded-full text-sm bg-[var(--brand-soft)] text-[var(--brand-strong)] font-medium"
                     >
-                      {s.name} · Rs {s.price} ✕
+                      {s.name} - Rs {s.price} x
                     </button>
                   ))}
                 </div>
@@ -237,7 +228,7 @@ const BookAppointment = () => {
                     No services found
                   </p>
                 ) : (
-                  searchableServices.map(s => (
+                  searchableServices.map((s) => (
                     <button
                       key={s.id}
                       type="button"
@@ -254,13 +245,12 @@ const BookAppointment = () => {
               </div>
             </section>
 
-            {/* Step 3 */}
             <section className="space-y-3">
               <h3 className="font-semibold">3. Review</h3>
 
               <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 space-y-1 text-sm">
-                <p>Date: <strong>{appointmentData.appointment_date || "—"}</strong></p>
-                <p>Time: <strong>{appointmentData.appointment_time || "—"}</strong></p>
+                <p>Date: <strong>{appointmentData.appointment_date || "-"}</strong></p>
+                <p>Time: <strong>{appointmentData.appointment_time || "-"}</strong></p>
                 <p>Services: <strong>{selectedServices.length}</strong></p>
                 <p className="text-lg font-bold mt-2">
                   Total: Rs {totalPrice}
@@ -268,7 +258,6 @@ const BookAppointment = () => {
               </div>
             </section>
 
-            {/* Submit */}
             <button
               type="submit"
               className="btn-primary w-full"
@@ -281,7 +270,6 @@ const BookAppointment = () => {
             >
               {submitting ? "Booking..." : "Confirm Booking"}
             </button>
-
           </form>
         </div>
       </main>

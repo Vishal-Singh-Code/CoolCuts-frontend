@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import api from "../../services/api";
 
 const Profile = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -68,6 +68,7 @@ const Profile = () => {
         name: name.trim(),
         phone: phone.trim(),
       });
+      await refreshUser();
 
       setSaveMessage("Profile saved successfully.");
       setIsEditing(false);

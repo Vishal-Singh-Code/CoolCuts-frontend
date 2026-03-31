@@ -23,6 +23,7 @@ import UserServices from "./pages/user/Services";
 import BookAppointment from "./pages/user/BookAppointment";
 import AppointmentHistory from "./pages/user/AppointmentHistory";
 import Profile from "./pages/user/Profile";
+import NotFound from "./pages/NotFound";
 
 import Dashboard from "./pages/admin/Dashboard";
 import Appointments from "./pages/admin/Appointments";
@@ -75,6 +76,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </div>

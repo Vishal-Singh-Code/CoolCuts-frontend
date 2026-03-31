@@ -94,7 +94,6 @@ const Appointments = () => {
           ? "Checklist updates are allowed for admin staff only."
           : "Checklist update failed. Please try again.";
       setActionError(message);
-      console.log(error.response?.data || error.message);
     }
   };
 
@@ -111,7 +110,9 @@ const Appointments = () => {
         prev.map(app => app.id === appointmentId ? response.data : app)
       );
     } catch (error) {
-      console.log(error.response?.data);
+      setActionError(
+        error.response?.data?.error || "Appointment status update failed. Please try again."
+      );
     }
   };
 

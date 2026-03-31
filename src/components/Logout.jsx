@@ -5,12 +5,7 @@ const Logout = () => {
     const { logout } = useAuth();
 
     const handleLogout = async () => {
-        try {
-            await logout();
-            console.log('Logged out successfully');
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
+        await logout();
     };
 
     return (

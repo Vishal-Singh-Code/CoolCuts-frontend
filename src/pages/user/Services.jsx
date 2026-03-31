@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from 'react';
-import api from '../../services/api'
-import { Logo } from '../../components/Icons';
-import '../../styles/styles.css';
+import { useState, useEffect } from "react";
+import api from "../../services/api";
+import { Logo } from "../../components/Icons";
+import "../../styles/styles.css";
 
 const Services = () => {
   const [services, setServices] = useState([]);
@@ -12,12 +12,12 @@ const Services = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await api.get(`/api/services/`);
+        const response = await api.get("/api/services/");
         setServices(response.data);
-        setLoading(false);
-      } catch (error) {
+      } catch {
         setError(true);
-        console.error('Error fetching services:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -46,21 +46,19 @@ const Services = () => {
             <p className="text-center text-red-500">Failed to load services.</p>
           ) : (
             <div className="space-y-8 max-w-5xl mx-auto px-6">
-              {services.map(service => (
+              {services.map((service) => (
                 <div key={service.id} className="pb-4 border-b border-gray-200">
                   <div className="flex justify-between">
                     <p className="font-semibold text-gray-900 text-md sm:text-lg">{service.name}</p>
-                    <p className="text-teal-700 font-semibold text-md sm:text-lg">₹ {service.price}</p>
+                    <p className="text-teal-700 font-semibold text-md sm:text-lg">Rs {service.price}</p>
                   </div>
                   <p className="text-gray-500 text-sm">A premium grooming experience.</p>
                 </div>
               ))}
             </div>
-
           )}
         </div>
       </section>
-
 
       <footer className="bg-gray-900 text-gray-300 body-font">
         <div className="container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
@@ -69,7 +67,7 @@ const Services = () => {
             <span className="ml-3 text-xl pt-3">Salon</span>
           </Link>
           <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-700 sm:py-2 sm:mt-0 mt-4">
-            © 2024 Salon —
+            Copyright 2024 Salon -
             <a
               href="https://twitter.com/knyttneve"
               className="text-gray-400 ml-1"
@@ -162,7 +160,6 @@ const Services = () => {
           </span>
         </div>
       </footer>
-
     </div>
   );
 };

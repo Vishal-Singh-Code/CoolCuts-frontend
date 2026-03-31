@@ -12,7 +12,6 @@ const AppointmentHistory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
 
-  /* ---------------- Fetch appointments ---------------- */
   useEffect(() => {
     if (!user) return;
 
@@ -23,7 +22,6 @@ const AppointmentHistory = () => {
       .finally(() => setLoading(false));
   }, [user]);
 
-  /* ---------------- Helpers ---------------- */
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-GB", {
       weekday: "short",
@@ -51,11 +49,10 @@ const AppointmentHistory = () => {
     }
   };
 
-  /* ---------------- States ---------------- */
   if (loading) {
     return (
       <div className="flex justify-center mt-20 text-gray-500">
-        ⏳ Loading appointments...
+        Loading appointments...
       </div>
     );
   }
@@ -68,7 +65,6 @@ const AppointmentHistory = () => {
     );
   }
 
-  /* ===================== UI ===================== */
   return (
     <main className="px-4 py-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-semibold text-center">
@@ -80,18 +76,16 @@ const AppointmentHistory = () => {
 
       {appointments.length === 0 && (
         <p className="text-center mt-12 text-gray-500">
-          You don’t have any appointments yet.
+          You don't have any appointments yet.
         </p>
       )}
 
-      {/* Appointment Cards */}
       <div className="mt-8 space-y-4">
         {appointments.map((appointment) => (
           <div
             key={appointment.id}
             className="bg-white border rounded-2xl p-4 sm:p-6 shadow-sm"
           >
-            {/* Top Row */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex gap-3">
                 <div className="bg-teal-600 text-white p-2 rounded-lg">
@@ -102,8 +96,6 @@ const AppointmentHistory = () => {
                   <h3 className="font-semibold">
                     {appointment.selected_services.join(", ")}
                   </h3>
-                  
-
 
                   <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-1">
                     <span className="flex items-center gap-1">
@@ -127,7 +119,6 @@ const AppointmentHistory = () => {
               </span>
             </div>
 
-            {/* Actions */}
             <div className="mt-4">
               <button
                 onClick={() => {
@@ -136,14 +127,13 @@ const AppointmentHistory = () => {
                 }}
                 className="text-sm font-medium text-teal-600 hover:underline"
               >
-                View details →
+                View details {"->"}
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Details Modal */}
       {selectedAppointment && (
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <div className="space-y-4">
@@ -171,8 +161,7 @@ const AppointmentHistory = () => {
                 </span>
               </p>
               <p>
-                <strong>Price:</strong> ₹
-                {selectedAppointment.price}
+                <strong>Price:</strong> Rs {selectedAppointment.price}
               </p>
             </div>
 

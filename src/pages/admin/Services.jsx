@@ -7,29 +7,33 @@ const Services = () => {
   const [services, setServices] = useState([]);
   const [newService, setNewService] = useState({ name: "", price: "" });
   const [editingService, setEditingService] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const response = await getServices();
         setServices(response);
-      } catch (error) {
-        console.error("Error fetching services", error);
+      } catch {
+        setError("Failed to load services. Please try again.");
       }
     };
+
     fetchServices();
   }, []);
 
   const handleCreateService = () => {
+    setError("");
     createService(newService)
       .then((response) => {
         setServices([...services, response]);
         setNewService({ name: "", price: "" });
       })
-      .catch((error) => console.error("Create failed", error));
+      .catch(() => setError("Failed to create service. Please check the inputs and try again."));
   };
 
   const handleUpdateService = () => {
+    setError("");
     updateService(editingService.id, editingService)
       .then((response) => {
         setServices(
@@ -39,29 +43,34 @@ const Services = () => {
         );
         setEditingService(null);
       })
-      .catch((error) => console.error("Update failed", error));
+      .catch(() => setError("Failed to update service. Please try again."));
   };
 
   const handleDeleteService = (id) => {
+    setError("");
     deleteService(id)
       .then(() => {
         setServices(services.filter((service) => service.id !== id));
       })
-      .catch((error) => console.error("Delete failed", error));
+      .catch(() => setError("Failed to delete service. Please try again."));
   };
 
   return (
     <div className="container mx-auto max-w-6xl pt-8 px-4">
-
       <div className="mb-8 text-center">
         <h2 className="sm:text-3xl text-2xl font-bold mb-2">Manage Services</h2>
         <p className="text-gray-600 text-sm sm:text-base max-w-3xl mx-auto">
-Keep service listings up to date. Create new services, modify pricing, or delete outdated entries.</p>
+          Keep service listings up to date. Create new services, modify pricing, or delete outdated entries.
+        </p>
       </div>
 
-      {/* Add or Edit Service Card */}
+      {error && (
+        <p className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">
+          {error}
+        </p>
+      )}
+
       <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">
-        
         <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
           {editingService ? "Edit Service" : "Add New Service"}
         </h2>
@@ -119,7 +128,6 @@ Keep service listings up to date. Create new services, modify pricing, or delete
         </div>
       </div>
 
-      {/* Services Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white rounded-xl shadow-md border border-gray-100">
           <thead className="bg-gray-50 text-gray-700">
@@ -137,7 +145,7 @@ Keep service listings up to date. Create new services, modify pricing, or delete
                 className="border-t hover:bg-gray-50 transition"
               >
                 <td className="py-3 px-4">{service.name}</td>
-                <td className="py-3 px-4">₹{service.price}</td>
+                <td className="py-3 px-4">Rs {service.price}</td>
                 <td className="py-3 px-4 text-center flex justify-center gap-3">
                   <button
                     onClick={() => setEditingService(service)}
